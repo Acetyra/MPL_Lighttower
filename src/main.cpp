@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "WiFi.h"
+#include <FastLED.h>
 
 const char * ssid           = "MPL";
 const char * password       = "123456789";
