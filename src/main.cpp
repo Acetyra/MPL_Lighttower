@@ -5,25 +5,56 @@
 const char * ssid           = "MPL";
 const char * password       = "123456789";
 String       client_address = "C01";
-int          udpPort        = 3333; // Make sure this port matches the 'Server' port!
-int          Control_pin    = 22;   // The device pin on the client to control e.g. an LED or Relay On/Off
+
+
 char befehl[10];
 
+#define LED_PIN     15
+#define POWER       4
+#define NUM_LEDS    144
 
-WiFiUDP udp;
+#define LED_TYPE    WS2812
+#define COLOR_ORDER GRB
+
+int Brightness = 0;
+
+int status = WL_IDLE_STATUS;
+unsigned int localPort = 3333;
+char packetBuffer[255];
+int packetSize = 0;
+int ledHight = 0;
+WiFiUDP Udp;
+
+CRGBArray<NUM_LEDS> leds;
+
 
 void setup()
 {
-  Serial.begin(115200);
-  WiFi.begin(ssid, password);
-  if (WiFi.waitForConnectResult() != WL_CONNECTED) {
-    Serial.println("WiFi Failed");
-    while (1) {
-      delay(1000);
-    }
+  pinMode(POWER, OUTPUT);
+  digitalWrite(POWER, LOW);
+  Serial.begin(9600);
+
+  while (status != WL_CONNECTED) {
+
+    status = WiFi.begin(ssid, password);
+    Serial.println("Verbindungsversuch");
+    delay(1000);
   }
-  udp.begin(udpPort);
-  Serial.println("Listening on Port: " + String(udpPort));
+
+  Serial.println("Verbunden");
+
+
+  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
+
+  
+  
+  Brightness = 255;
+  FastLED.setBrightness(Brightness);
+
+  //fill_solid (leds, 144, CRGB(255, 255, 255));
+  //FastLED.show();
+  Udp.begin(localPort);
+  digitalWrite(POWER, HIGH);
  
 }
 
@@ -31,16 +62,33 @@ void setup()
 
 void loop()
 {
-int packetSize, len;
-  // UDP
-  packetSize = udp.parsePacket();
-  // Da ist was da
-  if (packetSize) {
-    Serial.print("Empfangen "); Serial.print(packetSize);
-    Serial.print(" von IP "); Serial.print(udp.remoteIP());
-    Serial.print(" Port "); Serial.println(udp.remotePort());
-    len = udp.read(befehl, 10);
-    Serial.println(befehl); // erstes Byte 0 oder 1
-  }
+
+  packetSize = Udp.parsePacket();
+  if (packetSize)
+  {
+    //Serial.print("Received packet of size ");
+    //Serial.println(packetSize);
+    //Serial.print("From ");
+    //IPAddress remoteIp = Udp.remoteIP();
+    //erial.print(remoteIp);
+    //Serial.print(", port ");
+    //Serial.println(Udp.remotePort());
+
+    // read the packet into packetBufffer
+    int len = Udp.read(befehl, 10);
+    //if (len > 0) {
+    //  packetBuffer[len] = 0;
+    //}
+    //Serial.println("Contents:");
+    //Serial.println(packetBuffer);
+    //Serial.println(atoi(packetBuffer));
+    ledHight = atoi(packetBuffer);
+    FastLED.clear();
+    if(ledHight > 144)
+    {
+      ledHight = 144;
+    }
+    fill_rainbow (leds, ledHight, CRGB(255, 255, 255));
+    FastLED.show();
 }
 
