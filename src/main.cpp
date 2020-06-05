@@ -17,8 +17,9 @@ int Brightness = 0;
 
 int status = WL_IDLE_STATUS;
 unsigned int localPort = 3333;
-
+unsigned long mill = millis();
 int ledHight = 0;
+int lastLedHight = 0;
 WiFiUDP Udp;
 
 CRGBArray<NUM_LEDS> ledsOld;
@@ -94,8 +95,20 @@ void loop()
     {
       ledHight = 144;
     }
-    fill_rainbow(ledsOld, ledHight, CRGB(255, 255, 255));
-    //FillLEDsFromPaletteColors(1);
+    if (ledHight >= lastLedHight)
+    {
+      fill_rainbow(ledsOld, ledHight, CRGB(255, 255, 255));
+      lastLedHight = ledHight;
+    }
+    else
+    {
+      if (mill != millis())
+      {
+        lastLedHight--;
+        mill = millis();
+        fill_rainbow(ledsOld, lastLedHight, CRGB(255, 255, 255));
+      }
+    }
     FastLED.show();
   }
 }
