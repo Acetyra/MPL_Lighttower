@@ -18,7 +18,7 @@ int Brightness = 0;
 int status = WL_IDLE_STATUS;
 unsigned int localPort = 3333;
 
-unsigned int ledHight = 0;
+int ledHight = 0;
 WiFiUDP Udp;
 
 CRGBArray<NUM_LEDS> ledsOld;
@@ -70,7 +70,7 @@ void loop()
   int packetSize = Udp.parsePacket();
   if (packetSize)
   {
-    char packetBuffer[255];
+    char packetBuffer[255] = {0};
     //Serial.print("Received packet of size ");
     //Serial.println(packetSize);
     //Serial.print("From ");
@@ -89,7 +89,7 @@ void loop()
     //Serial.println(atoi(packetBuffer));
     ledHight = atoi(packetBuffer);
     FastLED.clear();
-    Serial.println(ledHight);
+    //Serial.println(ledHight);
     if (ledHight > 144)
     {
       ledHight = 144;
