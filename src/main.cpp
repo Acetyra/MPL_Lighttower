@@ -33,7 +33,7 @@ void setup()
 {
   pinMode(POWER, OUTPUT);
   digitalWrite(POWER, LOW);
-  Serial.begin(9600);
+  Serial.begin(115200);
   currentPalette = RainbowColors_p;
   currentBlending = LINEARBLEND;
   while (status != WL_CONNECTED) {
@@ -95,6 +95,7 @@ void loop()
     //Serial.println(atoi(packetBuffer));
     ledHight = atoi(packetBuffer);
     FastLED.clear();
+    Serial.println(ledHight);
     if(ledHight > 144)
     {
       ledHight = 144;
