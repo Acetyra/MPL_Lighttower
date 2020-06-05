@@ -72,22 +72,8 @@ void loop()
   if (packetSize)
   {
     char packetBuffer[255] = {0};
-    //Serial.print("Received packet of size ");
-    //Serial.println(packetSize);
-    //Serial.print("From ");
-    //IPAddress remoteIp = Udp.remoteIP();
-    //erial.print(remoteIp);
-    //Serial.print(", port ");
-    //Serial.println(Udp.remotePort());
 
-    // read the packet into packetBufffer
     int len = Udp.read(packetBuffer, 255);
-    //if (len > 0) {
-    //  packetBuffer[len] = 0;
-    //}
-    //Serial.println("Contents:");
-    //Serial.println(packetBuffer);
-    //Serial.println(atoi(packetBuffer));
     ledHight = atoi(packetBuffer);
     FastLED.clear();
     //Serial.println(ledHight);
@@ -95,6 +81,10 @@ void loop()
     {
       ledHight = 144;
     }
+  }
+  if (mill + 9 < millis())
+  {
+    mill = millis();
     if (ledHight >= lastLedHight)
     {
       fill_rainbow(ledsOld, ledHight, CRGB(255, 255, 255));
@@ -102,12 +92,8 @@ void loop()
     }
     else
     {
-      if (mill != millis())
-      {
-        lastLedHight--;
-        mill = millis();
-        fill_rainbow(ledsOld, lastLedHight, CRGB(255, 255, 255));
-      }
+      lastLedHight--;
+      fill_rainbow(ledsOld, lastLedHight, CRGB(255, 255, 255));
     }
     FastLED.show();
   }
