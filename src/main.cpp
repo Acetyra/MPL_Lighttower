@@ -22,18 +22,20 @@ int status = WL_IDLE_STATUS;
 unsigned int localPort = 3333;
 char packetBuffer[255];
 int packetSize = 0;
-int ledHight = 0;
+unsigned int ledHight = 0;
 WiFiUDP Udp;
 
-CRGBArray<NUM_LEDS> leds;
-
+CRGBArray<NUM_LEDS> ledsOld;
+CRGBPalette16 currentPalette;
+TBlendType    currentBlending;
 
 void setup()
 {
   pinMode(POWER, OUTPUT);
   digitalWrite(POWER, LOW);
   Serial.begin(9600);
-
+  currentPalette = RainbowColors_p;
+  currentBlending = LINEARBLEND;
   while (status != WL_CONNECTED) {
 
     status = WiFi.begin(ssid, password);
@@ -44,7 +46,7 @@ void setup()
   Serial.println("Verbunden");
 
 
-  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection( TypicalLEDStrip );
+  FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(ledsOld, NUM_LEDS).setCorrection( TypicalLEDStrip );
 
   
   
@@ -58,6 +60,15 @@ void setup()
  
 }
 
+void FillLEDsFromPaletteColors( uint8_t colorIndex)
+{
+    uint8_t brightness = 255;
+    
+    for( int i = 0; i < ledHight; i++) {
+        ledsOld[i] = ColorFromPalette( currentPalette, colorIndex, brightness, currentBlending);
+        colorIndex += 3;
+    }
+}
 
 
 void loop()
@@ -88,7 +99,9 @@ void loop()
     {
       ledHight = 144;
     }
-    fill_rainbow (leds, ledHight, CRGB(255, 255, 255));
+    fill_rainbow (ledsOld, ledHight, CRGB(255, 255, 255));
+    //FillLEDsFromPaletteColors(1);
     FastLED.show();
+  }
 }
 
