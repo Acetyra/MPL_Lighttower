@@ -97,4 +97,11 @@ void loop()
     }
     FastLED.show();
   }
+
+  if(WiFi.status() != WL_CONNECTED)
+  {
+    status = WiFi.begin(ssid, password);
+    Serial.println("erneuter Verbindungsversuch");
+    delay(1000);
+  }
 }
